@@ -1,29 +1,57 @@
-from fastapi import APIRouter
-from pydantic import BaseModel
-from auth.service import register_student, login_student
+from fastapi import APIRouter, Header
+from utils.auth_helper import verify_token, get_or_create_student
 from utils.response import success_response, error_response
 
 router = APIRouter()
 
-class RegisterRequest(BaseModel):
-    name: str
-    email: str
-    password: str
+@router.post("/google")
+def google_auth(authorization: str = Header(...)):
+    try:
+        token = authorization.replace("Bearer ", "")
+        payload = verify_token(token)
 
-class LoginRequest(BaseModel):
-    email: str
-    password: str
+        if not payload:
+            return error_response("Invalid token")
 
-@router.post("/register")
-def register(req: RegisterRequest):
-    data, error = register_student(req.name, req.email, req.password)
-    if error:
-        return error_response(error)
-    return success_response("Student registered successfully", data)
+        email = payload.get("email")
+        name = payload.get("user_metadata", {}).get("full_name", email)
 
-@router.post("/login")
-def login(req: LoginRequest):
-    data, error = login_student(req.email, req.password)
-    if error:
-        return error_response(error)
-    return success_response("Login successful", data)
+        student = get_or_create_student(email, name)
+
+        return success_response("Login successful", {
+            "student_id": student["id"],
+            "name": student["name"],
+            "email": student["email"],
+            "diagnostic_completed": student["diagnostic_completed"]
+        })
+
+    except Exception as e:
+        return error_response(str(e))
+
+@router.get("/check")
+def check_diagnostic(authorization: str = Header(...)):
+    try:
+        token = authorization.replace("Bearer ", "")
+        payload = verify_token(token)
+
+        if not payload:
+            return error_response("Invalid token")
+
+        email = payload.get("email")
+
+        student = supabase_check(email)
+        return success_response("Status fetched", {
+            "diagnostic_completed": student["diagnostic_completed"],
+            "student_id": student["id"]
+        })
+
+    except Exception as e:
+        return error_response(str(e))
+
+def supabase_check(email: str):
+    from database import supabase
+    result = supabase.table("students")\
+        .select("*")\
+        .eq("email", email)\
+        .execute()
+    return result.data[0] if result.data else None
