@@ -1,22 +1,22 @@
-from jose import jwt, JWTError
 from dotenv import load_dotenv
 from database import supabase
-import os
 
 load_dotenv()
 
-JWT_SECRET = os.getenv("SUPABASE_JWT_SECRET")
-
 def verify_token(token: str) -> dict:
     try:
-        payload = jwt.decode(
-            token,
-            JWT_SECRET,
-            algorithms=["HS256"],
-            options={"verify_aud": False}
-        )
-        return payload
-    except JWTError:
+        response = supabase.auth.get_user(token)
+        user = response.user if response else None
+        if not user or not user.email:
+            return None
+
+        return {
+            "email": user.email,
+            "user_metadata": user.user_metadata or {},
+            "app_metadata": user.app_metadata or {},
+            "sub": user.id
+        }
+    except Exception:
         return None
 
 def get_or_create_student(email: str, name: str) -> dict:

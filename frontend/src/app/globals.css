@@ -184,6 +184,7 @@ main {
 .profile-meta span {
   color: rgba(201, 214, 241, 0.7);
   font-size: 0.82rem;
+  text-transform: capitalize;
 }
 
 .sidebar-signout {
@@ -385,6 +386,67 @@ main {
   margin-top: 8px;
 }
 
+.auth-hero-grid,
+.auth-feature-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.auth-hero-grid {
+  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
+  align-items: stretch;
+}
+
+.auth-showcase-card,
+.auth-login-card {
+  max-width: none;
+}
+
+.auth-showcase-card {
+  background:
+    radial-gradient(circle at top right, rgba(47, 111, 247, 0.12), transparent 32%),
+    rgba(255, 255, 255, 0.92);
+}
+
+.auth-feature-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.auth-feature-card {
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid var(--line);
+  background: rgba(244, 248, 255, 0.88);
+}
+
+.auth-feature-card strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+.auth-login-card {
+  justify-content: space-between;
+}
+
+.auth-google-button {
+  gap: 12px;
+  min-height: 56px;
+  width: 100%;
+}
+
+.google-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #34a853 0%, #4285f4 50%, #fbbc05 75%, #ea4335 100%);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.14);
+}
+
+.auth-strip {
+  grid-template-columns: 1fr;
+}
+
 .loading-panel {
   max-width: 520px;
   margin: 72px auto;
@@ -486,6 +548,10 @@ main {
   align-items: start;
 }
 
+.quizzes-layout {
+  align-items: stretch;
+}
+
 .dashboard-column,
 .dashboard-side {
   display: grid;
@@ -559,6 +625,10 @@ main {
   gap: 18px;
 }
 
+.quiz-launch-card {
+  min-height: 132px;
+}
+
 .quiz-preview-icon {
   display: grid;
   place-items: center;
@@ -611,6 +681,58 @@ main {
 
 .mastery-row {
   grid-template-columns: minmax(0, 1fr) minmax(120px, 1fr) auto;
+}
+
+.trend-card,
+.trend-chart,
+.trend-point {
+  display: grid;
+}
+
+.trend-card {
+  gap: 18px;
+}
+
+.trend-chart {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: 14px;
+  min-height: 190px;
+  padding: 24px 8px 0;
+}
+
+.trend-point {
+  justify-items: center;
+  gap: 12px;
+}
+
+.trend-column {
+  display: block;
+  width: 100%;
+  min-height: 32px;
+  border-radius: 999px 999px 14px 14px;
+  background: linear-gradient(180deg, rgba(47, 111, 247, 0.18) 0%, var(--blue) 100%);
+  box-shadow: 0 16px 26px rgba(47, 111, 247, 0.18);
+}
+
+.trend-point small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.trend-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding-top: 6px;
+}
+
+.trend-footer strong {
+  color: var(--blue);
+  font-size: 1.35rem;
+  letter-spacing: -0.04em;
 }
 
 .mastery-bar,
@@ -991,6 +1113,91 @@ main {
   align-items: start;
 }
 
+.logs-list,
+.settings-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.logs-list {
+  grid-template-columns: 1fr;
+}
+
+.log-card,
+.settings-card {
+  display: grid;
+  gap: 18px;
+}
+
+.log-stats-grid,
+.mini-breakdown-grid,
+.mode-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.log-stats-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, max-content));
+}
+
+.mini-breakdown-grid {
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.mini-breakdown-card,
+.mode-card {
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.mini-breakdown-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.1rem;
+}
+
+.mode-card p {
+  margin-top: 6px;
+}
+
+.compact-check-list {
+  gap: 10px;
+}
+
+.check-row.compact {
+  grid-template-columns: auto 1fr;
+  padding: 10px 0;
+}
+
+.settings-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.settings-field,
+.settings-toggle-row {
+  display: grid;
+  gap: 6px;
+}
+
+.settings-field strong,
+.settings-toggle-row strong {
+  font-size: 1rem;
+}
+
+.settings-toggle-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid #edf3ff;
+}
+
+.settings-toggle-row:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
 .breakdown-card,
 .timeline-card {
   display: grid;
@@ -1167,9 +1374,12 @@ main {
   .dashboard-metrics,
   .diagnostic-metrics,
   .dashboard-grid,
+  .auth-hero-grid,
+  .auth-feature-grid,
   .before-grid,
   .quiz-layout,
-  .results-grid {
+  .results-grid,
+  .settings-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -1,6 +1,11 @@
 from fastapi import APIRouter
 
-from behaviour.service import get_session_behaviour, save_snapshot, save_summary
+from behaviour.service import (
+    get_session_behaviour,
+    get_student_behaviour_history,
+    save_snapshot,
+    save_summary,
+)
 from schemas import BehaviourSnapshotRequest, BehaviourSummaryRequest
 from utils.response import error_response, success_response
 
@@ -32,5 +37,20 @@ def fetch_session_behaviour(session_id: int):
         if not data:
             return error_response("Session behaviour not found")
         return success_response("Behaviour session fetched", data)
+    except Exception as e:
+        return error_response(str(e))
+
+
+@router.get("/student/{student_id}")
+def fetch_student_behaviour_history(student_id: int):
+    try:
+        data = get_student_behaviour_history(student_id)
+        return success_response(
+            "Behaviour history fetched",
+            {
+                "student_id": student_id,
+                "sessions": data,
+            },
+        )
     except Exception as e:
         return error_response(str(e))

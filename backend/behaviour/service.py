@@ -167,3 +167,15 @@ def get_session_behaviour(session_id: int):
         "absent_percent": session.get("absent_percent", 0),
         "snapshots": logs.data,
     }
+
+
+def get_student_behaviour_history(student_id: int):
+    sessions = (
+        supabase.table("session_summary")
+        .select("*, subtopics(id, title, group_name)")
+        .eq("student_id", student_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+
+    return sessions.data

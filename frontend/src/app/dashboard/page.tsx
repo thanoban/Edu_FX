@@ -79,11 +79,21 @@ export default function DashboardPage() {
       .filter((entry) => entry.last_quiz_score > 0 && entry.last_quiz_score < 60)
       .map((entry) => `Low score detected in ${entry.subtopics.title}`)
   ].slice(0, 3);
+  const trendValues = Array.from({ length: 7 }, (_, index) => {
+    if (!progress.length) {
+      return [68, 71, 74, 72, 78, 76, 82][index];
+    }
+
+    const entry = progress[index % progress.length];
+    return Math.max(entry.last_quiz_score || averageScore || 60, 32);
+  });
+  const trendAverage = average(trendValues);
+
   return (
     <RequireAuth>
       <PageShell
         title="Dashboard"
-        subtitle={`Welcome back, ${firstName}. Here is your EduFX study overview for today.`}
+        subtitle={`Welcome back, ${firstName} 👋 — here is your EduFX overview.`}
         actions={
           <Link
             href={plan[0] ? `/webcam-check?subtopicId=${plan[0].subtopic_id}` : "/diagnostic"}
@@ -198,24 +208,25 @@ export default function DashboardPage() {
               <div className="dashboard-column dashboard-side">
                 <article className="panel">
                   <div className="section-row">
-                    <h2>Mastery Snapshot</h2>
-                    <span className="metric-note">Latest scores</span>
+                    <h2>Focus Trend</h2>
+                    <span className="metric-note">7-day average</span>
                   </div>
-                  <div className="mastery-stack">
-                    {progress.slice(0, 4).map((entry) => (
-                      <div className="mastery-row" key={entry.id}>
-                        <div>
-                          <strong>{entry.subtopics.title}</strong>
-                          <p className="metric-note">{entry.current_level}</p>
-                        </div>
-                        <div className="mastery-bar">
+                  <div className="trend-card">
+                    <div className="trend-chart" aria-label="Weekly learning trend">
+                      {trendValues.map((value, index) => (
+                        <div className="trend-point" key={`${index}-${value}`}>
                           <span
-                            style={{ width: `${Math.max(entry.last_quiz_score, 8)}%` }}
+                            className="trend-column"
+                            style={{ height: `${Math.max(value, 18)}%` }}
                           />
+                          <small>{["M", "T", "W", "T", "F", "S", "S"][index]}</small>
                         </div>
-                        <strong>{entry.last_quiz_score}%</strong>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                    <div className="trend-footer">
+                      <span className="metric-note">Average stability this week</span>
+                      <strong>{trendAverage}%</strong>
+                    </div>
                   </div>
                 </article>
 

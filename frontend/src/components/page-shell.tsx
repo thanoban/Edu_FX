@@ -7,7 +7,7 @@ import { ReactNode } from "react";
 
 import { useAuth } from "@/components/auth-provider";
 
-type NavId = "dashboard" | "quizzes" | "diagnostic" | "progress" | "settings";
+type NavId = "dashboard" | "quizzes" | "behaviour" | "progress" | "settings";
 
 type PageShellProps = {
   title: string;
@@ -25,10 +25,10 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { id: "dashboard", label: "Dashboard", href: "/dashboard" },
-  { id: "quizzes", label: "My Quizzes", href: "/dashboard" },
-  { id: "diagnostic", label: "Diagnostic", href: "/diagnostic" },
+  { id: "quizzes", label: "My Quizzes", href: "/quizzes" },
+  { id: "behaviour", label: "Behaviour Logs", href: "/behaviour-logs" },
   { id: "progress", label: "Progress", href: "/progress" },
-  { id: "settings", label: "Settings" }
+  { id: "settings", label: "Settings", href: "/settings" }
 ];
 
 function AppIcon({ type }: { type: NavId }) {
@@ -47,12 +47,10 @@ function AppIcon({ type }: { type: NavId }) {
         <path d="m9 12 2.3 2.4L16 9.8" />
       </>
     ),
-    diagnostic: (
+    behaviour: (
       <>
-        <path d="M12 4v8" />
-        <path d="M8 12h8" />
-        <path d="M6 20h12" />
-        <path d="M8 20v-2a4 4 0 0 1 8 0v2" />
+        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+        <circle cx="12" cy="12" r="2.8" />
       </>
     ),
     progress: (
@@ -111,6 +109,7 @@ function BellIcon() {
 function resolveActiveSection(pathname: string) {
   if (
     pathname.startsWith("/study") ||
+    pathname.startsWith("/quizzes") ||
     pathname.startsWith("/webcam-check") ||
     pathname.startsWith("/quiz") ||
     pathname.startsWith("/results")
@@ -118,12 +117,16 @@ function resolveActiveSection(pathname: string) {
     return "quizzes";
   }
 
+  if (pathname.startsWith("/behaviour-logs")) {
+    return "behaviour";
+  }
+
   if (pathname.startsWith("/progress")) {
     return "progress";
   }
 
-  if (pathname.startsWith("/diagnostic")) {
-    return "diagnostic";
+  if (pathname.startsWith("/settings")) {
+    return "settings";
   }
 
   return "dashboard";
@@ -215,7 +218,7 @@ export function PageShell({
           <div className="profile-avatar">{initials ?? "EF"}</div>
           <div className="profile-meta">
             <strong>{profile?.name ?? "EduFX Student"}</strong>
-            <span>{profile?.email ?? "Adaptive learner"}</span>
+            <span>Student</span>
           </div>
           {profile ? (
             <button className="sidebar-signout" onClick={() => void signOut()}>

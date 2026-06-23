@@ -47,6 +47,10 @@ async function syncStudentProfile(
   return profile;
 }
 
+async function resetSessionState(client: SupabaseClient) {
+  await client.auth.signOut();
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<StudentProfile | null>(null);
@@ -93,9 +97,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!active) {
           return;
         }
+        await resetSessionState(supabase);
+        setSession(null);
+        setProfile(null);
         setError(
           bootstrapError instanceof Error
-            ? bootstrapError.message
+            ? "Your previous sign-in expired. Continue with Google to start a fresh session."
             : "Unable to load student profile"
         );
       } finally {
@@ -124,10 +131,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setProfile(syncedProfile);
           setError(null);
         })
-        .catch((syncError) => {
+        .catch(async (syncError) => {
+          await resetSessionState(supabase);
+          setSession(null);
+          setProfile(null);
           setError(
             syncError instanceof Error
-              ? syncError.message
+              ? "Your sign-in session expired. Please continue with Google again."
               : "Unable to sync student profile"
           );
         })
