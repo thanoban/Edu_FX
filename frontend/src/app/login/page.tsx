@@ -42,8 +42,9 @@ export default function LoginPage() {
 
   return (
     <PageShell
+      layout="landing"
       title="Welcome to EduFX"
-      subtitle="Personalized S-Block chemistry practice with adaptive quizzes and on-device focus tracking."
+      subtitle="Adaptive chemistry practice with personalized quizzes, guided study sessions, and on-device behaviour intelligence."
     >
       <section className="hero-card">
         <div>

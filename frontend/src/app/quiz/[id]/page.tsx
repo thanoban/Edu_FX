@@ -31,6 +31,8 @@ function QuizPageContent() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [trackerState, setTrackerState] = useState<TrackerRealtimeState | null>(
     null
   );
@@ -41,6 +43,9 @@ function QuizPageContent() {
 
   const subtopicId = useMemo(() => Number(params.id), [params.id]);
   const webcamEnabled = searchParams.get("webcam") === "1";
+  const currentQuestion = quiz?.questions[currentIndex] ?? null;
+  const allAnswered =
+    quiz !== null && Object.keys(answers).length === quiz.questions.length;
 
   useEffect(() => {
     if (!profile || Number.isNaN(subtopicId)) {
@@ -65,6 +70,26 @@ function QuizPageContent() {
 
     void loadQuiz();
   }, [profile, subtopicId]);
+
+  useEffect(() => {
+    if (!quiz) {
+      return;
+    }
+
+    setTimeRemaining(quiz.total_questions * 150);
+  }, [quiz]);
+
+  useEffect(() => {
+    if (!timeRemaining || submitting) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setTimeRemaining((current) => (current > 0 ? current - 1 : 0));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [submitting, timeRemaining]);
 
   useEffect(() => {
     if (!webcamEnabled || !quiz || !profile || !videoRef.current) {
@@ -180,6 +205,18 @@ function QuizPageContent() {
     }
   }
 
+  const minutes = String(Math.floor(timeRemaining / 60)).padStart(2, "0");
+  const seconds = String(timeRemaining % 60).padStart(2, "0");
+  const focusScore = trackerState?.focusScore ?? 100;
+  const monitorItems = [
+    ["Face Detected", trackerState?.faceDetected ?? webcamEnabled, "clear"],
+    ["Looking Away", trackerState?.lookingAway ?? false, "warning"],
+    ["Phone Detected", trackerState?.phoneDetected ?? false, "warning"],
+    ["Drowsy", trackerState?.drowsy ?? false, "warning"],
+    ["Talking", trackerState?.talking ?? false, "warning"],
+    ["Absent", trackerState?.absent ?? false, "warning"]
+  ] as const;
+
   return (
     <RequireAuth>
       <PageShell
@@ -189,109 +226,184 @@ function QuizPageContent() {
             ? `Stage: ${quiz.stage}. Answer all ${quiz.total_questions} questions.`
             : "Loading quiz..."
         }
+        actions={
+          <div className="timer-chip">
+            <strong>
+              {minutes}:{seconds}
+            </strong>
+            <span>remaining</span>
+          </div>
+        }
       >
         {error ? <div className="error-banner">{error}</div> : null}
         {loading ? <div className="panel">Preparing quiz...</div> : null}
 
         {webcamEnabled ? (
-          <section className="tracker-grid" style={{ marginBottom: 20 }}>
-            <div className="panel">
-              <video ref={videoRef} className="video-frame" muted playsInline />
-            </div>
-            <div className="panel">
-              <h3>Live behaviour tracking</h3>
-              <div className="status-row">
-                <span className="status-chip">
-                  Face: {trackerState?.faceDetected ? "detected" : "not detected"}
-                </span>
-                <span
-                  className={`status-chip ${
-                    trackerState?.phoneDetected ? "alert" : ""
-                  }`}
-                >
-                  Phone: {trackerState?.phoneDetected ? "detected" : "clear"}
-                </span>
-                <span
-                  className={`status-chip ${
-                    trackerState?.lookingAway ? "alert" : ""
-                  }`}
-                >
-                  Looking away: {trackerState?.lookingAway ? "yes" : "no"}
-                </span>
-                <span
-                  className={`status-chip ${trackerState?.drowsy ? "alert" : ""}`}
-                >
-                  Drowsy: {trackerState?.drowsy ? "yes" : "no"}
-                </span>
-                <span
-                  className={`status-chip ${trackerState?.talking ? "alert" : ""}`}
-                >
-                  Talking: {trackerState?.talking ? "yes" : "no"}
-                </span>
-              </div>
-              <p>
-                Current focus score: <strong>{trackerState?.focusScore ?? 100}</strong>
-              </p>
-              {trackerState?.warning ? (
-                <div className="error-banner">{trackerState.warning}</div>
-              ) : null}
-            </div>
-          </section>
+          <div className="quiz-ribbon">
+            <span>Behaviour Tracking Active</span>
+            <span>Face: {trackerState?.faceDetected ? "OK" : "Waiting"}</span>
+            <span>Phone: {trackerState?.phoneDetected ? "Warning" : "OK"}</span>
+            <span>Drowsy: {trackerState?.drowsy ? "Warning" : "OK"}</span>
+            <span>Away: {trackerState?.lookingAway ? "Warning" : "OK"}</span>
+          </div>
         ) : null}
 
-        {quiz ? (
-          <section className="question-list">
-            {quiz.questions.map((question, index) => (
-              <article className="question-card" key={question.id}>
-                <div className="question-meta">
-                  Question {index + 1} of {quiz.total_questions}
+        {quiz && currentQuestion ? (
+          <section className="quiz-layout">
+            <div className="quiz-main">
+              <article className="panel progress-panel">
+                <div className="section-row">
+                  <strong>Progress</strong>
+                  <span>
+                    {currentIndex + 1}/{quiz.total_questions}
+                  </span>
                 </div>
-                <h3>{question.question_text}</h3>
-                <div className="options-grid">
-                  {optionKeys.map((optionKey) => {
-                    const optionText =
-                      question[
-                        `option_${optionKey.toLowerCase()}` as
-                          | "option_a"
-                          | "option_b"
-                          | "option_c"
-                          | "option_d"
-                      ];
-
+                <div className="progress-rail">
+                  {quiz.questions.map((question, index) => {
+                    const answered = Boolean(answers[question.id]);
+                    const isCurrent = index === currentIndex;
                     return (
-                      <label className="option-label" key={optionKey}>
-                        <input
-                          type="radio"
-                          name={`question-${question.id}`}
-                          checked={answers[question.id] === optionKey}
-                          onChange={() =>
-                            setAnswers((current) => ({
-                              ...current,
-                              [question.id]: optionKey
-                            }))
-                          }
-                        />
-                        <span>
-                          <strong>{optionKey}.</strong> {optionText}
-                        </span>
-                      </label>
+                      <span
+                        className={`progress-step${
+                          answered ? " answered" : ""
+                        }${isCurrent ? " current" : ""}`}
+                        key={question.id}
+                      />
                     );
                   })}
                 </div>
               </article>
-            ))}
+
+              <article className="question-card quiz-question-card">
+                <div className="question-meta">
+                  Question {currentIndex + 1}
+                </div>
+                <h3>{currentQuestion.question_text}</h3>
+              </article>
+
+              <article className="options-grid quiz-options-grid">
+                {optionKeys.map((optionKey) => {
+                  const optionText =
+                    currentQuestion[
+                      `option_${optionKey.toLowerCase()}` as
+                        | "option_a"
+                        | "option_b"
+                        | "option_c"
+                        | "option_d"
+                    ];
+                  const selected = answers[currentQuestion.id] === optionKey;
+
+                  return (
+                    <label
+                      className={`option-label choice-card${
+                        selected ? " selected" : ""
+                      }`}
+                      key={optionKey}
+                    >
+                      <input
+                        type="radio"
+                        name={`question-${currentQuestion.id}`}
+                        checked={selected}
+                        onChange={() =>
+                          setAnswers((current) => ({
+                            ...current,
+                            [currentQuestion.id]: optionKey
+                          }))
+                        }
+                      />
+                      <span className="choice-letter">{optionKey}</span>
+                      <span className="choice-text">{optionText}</span>
+                    </label>
+                  );
+                })}
+              </article>
+
+              <div className="button-row quiz-actions">
+                <button
+                  className="secondary-button"
+                  onClick={() =>
+                    setCurrentIndex((current) => Math.max(current - 1, 0))
+                  }
+                  disabled={currentIndex === 0}
+                >
+                  Previous
+                </button>
+
+                {currentIndex < quiz.questions.length - 1 ? (
+                  <button
+                    className="primary-button"
+                    onClick={() =>
+                      setCurrentIndex((current) =>
+                        Math.min(current + 1, quiz.questions.length - 1)
+                      )
+                    }
+                    disabled={!answers[currentQuestion.id]}
+                  >
+                    Next Question
+                  </button>
+                ) : (
+                  <button
+                    className="primary-button"
+                    onClick={() => void handleSubmit()}
+                    disabled={loading || submitting || !allAnswered}
+                  >
+                    {submitting ? "Submitting..." : "Submit Quiz"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <aside className="quiz-side">
+              <article className="panel monitor-panel">
+                <div className="section-row">
+                  <h2>Live Feed</h2>
+                  <span className="status-pill success">
+                    {webcamEnabled ? "Live" : "Skipped"}
+                  </span>
+                </div>
+                {webcamEnabled ? (
+                  <video ref={videoRef} className="video-frame" muted playsInline />
+                ) : (
+                  <div className="video-frame video-placeholder">
+                    Behaviour tracking was skipped for this session.
+                  </div>
+                )}
+
+                <div className="monitor-status-list">
+                  {monitorItems.map(([label, active, tone]) => (
+                    <div className="monitor-status-row" key={label}>
+                      <span>{label}</span>
+                      <span
+                        className={`status-pill ${
+                          active && tone === "warning" ? "warning" : "success"
+                        }`}
+                      >
+                        {active && tone === "warning" ? "Flagged" : "Clear"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </article>
+
+              <article className="panel focus-card">
+                <div className="focus-ring">
+                  <div className="focus-ring-inner">
+                    <strong>{focusScore}%</strong>
+                    <span>focus</span>
+                  </div>
+                </div>
+                <p className="focus-caption">
+                  {focusScore >= 80
+                    ? "Great concentration so far."
+                    : "Stay centered and reduce distractions."}
+                </p>
+                {trackerState?.warning ? (
+                  <div className="error-banner">{trackerState.warning}</div>
+                ) : null}
+              </article>
+            </aside>
           </section>
         ) : null}
-
-        <div className="button-row" style={{ marginTop: 20 }}>
-          <button
-            className="primary-button"
-            onClick={() => void handleSubmit()}
-            disabled={loading || submitting}
-          >
-            {submitting ? "Submitting..." : "Submit Quiz"}
-          </button>
-        </div>
       </PageShell>
     </RequireAuth>
   );
