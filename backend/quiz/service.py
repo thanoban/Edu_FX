@@ -1,6 +1,7 @@
 from database import supabase
 from quiz.ai_generator import generate_quiz
 
+
 def check_first_attempt(student_id: int, subtopic_id: int) -> bool:
     first_questions = supabase.table("questions")\
         .select("id")\
@@ -31,10 +32,11 @@ def get_past_wrong_answers(student_id: int, subtopic_id: int) -> list:
 
     wrong_map = {}
     for attempt in attempts:
+        question_payload = attempt.get("questions") or {}
         qid = attempt["question_id"]
         if qid not in wrong_map:
             wrong_map[qid] = {
-                "question_text": attempt["questions"]["question_text"],
+                "question_text": question_payload.get("question_text", ""),
                 "student_answer": attempt["student_answer"],
                 "correct_answer": attempt["correct_answer"],
                 "times_wrong": 1
@@ -85,6 +87,8 @@ def get_quiz(student_id: int, subtopic_id: int):
             .select("title, group_name")\
             .eq("id", subtopic_id)\
             .execute()
+        if not subtopic.data:
+            raise ValueError("Subtopic not found")
         subtopic_title = subtopic.data[0]["title"]
         group_name = subtopic.data[0]["group_name"]
 
@@ -114,6 +118,8 @@ def get_quiz(student_id: int, subtopic_id: int):
         .select("title")\
         .eq("id", subtopic_id)\
         .execute()
+    if not subtopic_info.data:
+        raise ValueError("Subtopic not found")
 
     return {
         "session_id": session_id,

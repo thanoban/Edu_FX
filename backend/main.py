@@ -11,7 +11,7 @@ from explanation.router import router as explanation_router
 from progress.router import router as progress_router
 from behaviour.router import router as behaviour_router
 
-app = FastAPI(title="Adaptive Chemistry API")
+app = FastAPI(title="EduFX")
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,4 +33,4 @@ app.include_router(behaviour_router,   prefix="/behaviour")
 
 @app.get("/")
 def root():
-    return {"message": "Adaptive Chemistry API is running"}
+    return {"message": "EduFX API is running"}

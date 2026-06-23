@@ -40,6 +40,8 @@ def check_diagnostic(authorization: str = Header(...)):
         email = payload.get("email")
 
         student = supabase_check(email)
+        if not student:
+            return error_response("Student not found")
         return success_response("Status fetched", {
             "diagnostic_completed": student["diagnostic_completed"],
             "student_id": student["id"]

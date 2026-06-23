@@ -1,16 +1,69 @@
 from database import supabase
 from utils.level import update_level
+from datetime import date
+
+
+def _get_session(session_id: int):
+    session = (
+        supabase.table("session_summary")
+        .select("*")
+        .eq("id", session_id)
+        .execute()
+    )
+    return session.data[0] if session.data else None
+
+
+def _ensure_progress(student_id: int, subtopic_id: int):
+    progress = (
+        supabase.table("student_progress")
+        .select("*")
+        .eq("student_id", student_id)
+        .eq("subtopic_id", subtopic_id)
+        .execute()
+    )
+    if progress.data:
+        return progress.data[0]
+
+    inserted = (
+        supabase.table("student_progress")
+        .insert(
+            {
+                "student_id": student_id,
+                "subtopic_id": subtopic_id,
+                "current_level": "beginner",
+                "last_quiz_score": 0,
+                "total_sessions": 0,
+            }
+        )
+        .execute()
+    )
+    return inserted.data[0]
+
 
 def submit_quiz(student_id: int, session_id: int, subtopic_id: int, webcam_enabled: bool, answers: list):
+    session = _get_session(session_id)
+    if not session:
+        raise ValueError("Session not found")
+    if session["student_id"] != student_id or session["subtopic_id"] != subtopic_id:
+        raise ValueError("Session does not match the submitted quiz")
+    if not answers:
+        raise ValueError("Quiz answers are required")
+
     questions_ids = [a["question_id"] for a in answers]
     questions_result = supabase.table("questions")\
         .select("*")\
         .in_("id", questions_ids)\
         .execute()
+    if not questions_result.data:
+        raise ValueError("No matching questions were found")
 
     question_map = {}
     for q in questions_result.data:
         question_map[q["id"]] = q
+
+    missing_ids = [question_id for question_id in questions_ids if question_id not in question_map]
+    if missing_ids:
+        raise ValueError("Some submitted questions could not be validated")
 
     correct_count = 0
     total = len(answers)
@@ -19,7 +72,7 @@ def submit_quiz(student_id: int, session_id: int, subtopic_id: int, webcam_enabl
         question_id = answer["question_id"]
         student_answer = answer["student_answer"]
 
-        correct = question_map[question_id]["correct_answer"]
+        correct = str(question_map[question_id]["correct_answer"]).upper()
         is_correct = student_answer.upper() == correct.upper()
 
         if is_correct:
@@ -37,21 +90,17 @@ def submit_quiz(student_id: int, session_id: int, subtopic_id: int, webcam_enabl
 
     quiz_score = int((correct_count / total) * 100)
 
-    progress = supabase.table("student_progress")\
-        .select("current_level")\
-        .eq("student_id", student_id)\
-        .eq("subtopic_id", subtopic_id)\
-        .execute()
+    progress = _ensure_progress(student_id, subtopic_id)
 
-    previous_level = progress.data[0]["current_level"] if progress.data else "beginner"
+    previous_level = progress["current_level"]
     new_level = update_level(previous_level, quiz_score)
 
     supabase.table("student_progress")\
         .update({
             "current_level": new_level,
             "last_quiz_score": quiz_score,
-            "last_studied_date": "now()",
-            "total_sessions": progress.data[0].get("total_sessions", 0) + 1
+            "last_studied_date": date.today().isoformat(),
+            "total_sessions": progress.get("total_sessions", 0) + 1
         })\
         .eq("student_id", student_id)\
         .eq("subtopic_id", subtopic_id)\
@@ -82,6 +131,7 @@ def get_session_results(session_id: int, student_id: int):
     session = supabase.table("session_summary")\
         .select("*")\
         .eq("id", session_id)\
+        .eq("student_id", student_id)\
         .execute()
 
     if not session.data:

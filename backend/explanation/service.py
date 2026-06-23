@@ -8,6 +8,15 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def generate_explanations(session_id: int, student_id: int):
+    session = supabase.table("session_summary")\
+        .select("subtopic_id")\
+        .eq("id", session_id)\
+        .eq("student_id", student_id)\
+        .execute()
+
+    if not session.data:
+        raise ValueError("Session not found")
+
     attempts = supabase.table("quiz_attempts")\
         .select("*, questions(*)")\
         .eq("session_id", session_id)\
@@ -18,12 +27,7 @@ def generate_explanations(session_id: int, student_id: int):
     if not attempts.data:
         return []
 
-    progress = supabase.table("session_summary")\
-        .select("subtopic_id")\
-        .eq("id", session_id)\
-        .execute()
-
-    subtopic_id = progress.data[0]["subtopic_id"]
+    subtopic_id = session.data[0]["subtopic_id"]
 
     progress_level = supabase.table("student_progress")\
         .select("current_level")\
@@ -37,6 +41,23 @@ def generate_explanations(session_id: int, student_id: int):
 
     for attempt in attempts.data:
         question = attempt["questions"]
+        if not question:
+            continue
+
+        if attempt.get("explanation"):
+            explanations.append({
+                "attempt_id": attempt["id"],
+                "question_id": attempt["question_id"],
+                "question_text": question["question_text"],
+                "option_a": question["option_a"],
+                "option_b": question["option_b"],
+                "option_c": question["option_c"],
+                "option_d": question["option_d"],
+                "student_answer": attempt["student_answer"],
+                "correct_answer": attempt["correct_answer"],
+                "explanation": attempt["explanation"]
+            })
+            continue
 
         prompt = f"""
 You are an A-Level Chemistry teacher explaining a wrong answer to a student.
