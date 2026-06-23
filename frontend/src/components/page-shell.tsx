@@ -24,111 +24,78 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { id: "dashboard", label: "Dashboard", href: "/dashboard" },
-  { id: "quizzes", label: "My Quizzes", href: "/quizzes" },
-  { id: "behaviour", label: "Behaviour Logs", href: "/behaviour-logs" },
-  { id: "progress", label: "Progress", href: "/progress" },
-  { id: "settings", label: "Settings", href: "/settings" }
+  { id: "dashboard",  label: "Dashboard",      href: "/dashboard" },
+  { id: "quizzes",    label: "My Quizzes",     href: "/quizzes" },
+  { id: "behaviour",  label: "Behaviour Logs", href: "/behaviour-logs" },
+  { id: "progress",   label: "Progress",       href: "/progress" },
+  { id: "settings",   label: "Settings",       href: "/settings" },
 ];
 
-function AppIcon({ type }: { type: NavId }) {
-  const paths: Record<NavId, ReactNode> = {
+function NavIcon({ id }: { id: NavId }) {
+  const icons: Record<NavId, ReactNode> = {
     dashboard: (
-      <>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="7" height="7" rx="1.5" />
         <rect x="14" y="3" width="7" height="7" rx="1.5" />
         <rect x="3" y="14" width="7" height="7" rx="1.5" />
         <rect x="14" y="14" width="7" height="7" rx="1.5" />
-      </>
+      </svg>
     ),
     quizzes: (
-      <>
-        <path d="M7 6.5h10.5a1.5 1.5 0 0 1 1.5 1.5v11a1.5 1.5 0 0 1-1.5 1.5H7A1.5 1.5 0 0 1 5.5 19V8A1.5 1.5 0 0 1 7 6.5Z" />
-        <path d="m9 12 2.3 2.4L16 9.8" />
-      </>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round">
+        <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+        <rect x="9" y="3" width="6" height="4" rx="1.5" />
+        <path d="m9 12 2 2 4-4" />
+      </svg>
     ),
     behaviour: (
-      <>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round">
         <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
-        <circle cx="12" cy="12" r="2.8" />
-      </>
+        <circle cx="12" cy="12" r="2.5" />
+      </svg>
     ),
     progress: (
-      <>
-        <path d="M4 16h4l2-6 4 10 2-5h4" />
-      </>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round">
+        <path d="M3 17h2l2-6 4 10 2-5h2l2-4h2" />
+      </svg>
     ),
     settings: (
-      <>
-        <circle cx="12" cy="12" r="3.2" />
-        <path d="M12 2.7v2.4" />
-        <path d="M12 18.9v2.4" />
-        <path d="m4.9 4.9 1.7 1.7" />
-        <path d="m17.4 17.4 1.7 1.7" />
-        <path d="M2.7 12h2.4" />
-        <path d="M18.9 12h2.4" />
-        <path d="m4.9 19.1 1.7-1.7" />
-        <path d="m17.4 6.6 1.7-1.7" />
-      </>
-    )
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"
+        strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="3" />
+        <path d="M12 1v3m0 16v3M4.22 4.22l2.12 2.12m11.32 11.32 2.12 2.12M1 12h3m16 0h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12" />
+      </svg>
+    ),
   };
 
   return (
-    <svg
-      aria-hidden="true"
-      className="nav-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      {paths[type]}
-    </svg>
+    <span className="nav-icon" aria-hidden="true">
+      {icons[id]}
+    </span>
   );
 }
 
 function BellIcon() {
   return (
-    <svg
-      aria-hidden="true"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
       <path d="M12 4a4 4 0 0 0-4 4v2.5c0 1.2-.4 2.4-1.2 3.3L5.5 15h13l-1.3-1.2A4.8 4.8 0 0 1 16 10.5V8a4 4 0 0 0-4-4Z" />
       <path d="M10 18a2.2 2.2 0 0 0 4 0" />
     </svg>
   );
 }
 
-function resolveActiveSection(pathname: string) {
-  if (
-    pathname.startsWith("/study") ||
-    pathname.startsWith("/quizzes") ||
-    pathname.startsWith("/webcam-check") ||
-    pathname.startsWith("/quiz") ||
-    pathname.startsWith("/results")
-  ) {
-    return "quizzes";
-  }
-
-  if (pathname.startsWith("/behaviour-logs")) {
-    return "behaviour";
-  }
-
-  if (pathname.startsWith("/progress")) {
-    return "progress";
-  }
-
-  if (pathname.startsWith("/settings")) {
-    return "settings";
-  }
-
+function resolveActiveSection(pathname: string): NavId {
+  if (pathname.startsWith("/study") || pathname.startsWith("/quizzes") ||
+      pathname.startsWith("/webcam-check") || pathname.startsWith("/quiz") ||
+      pathname.startsWith("/results")) return "quizzes";
+  if (pathname.startsWith("/behaviour-logs")) return "behaviour";
+  if (pathname.startsWith("/progress")) return "progress";
+  if (pathname.startsWith("/settings")) return "settings";
   return "dashboard";
 }
 
@@ -137,28 +104,25 @@ export function PageShell({
   subtitle,
   children,
   actions,
-  layout = "app"
+  layout = "app",
 }: PageShellProps) {
   const { profile, signOut } = useAuth();
   const pathname = usePathname();
-  const activeSection = resolveActiveSection(pathname);
+  const active = resolveActiveSection(pathname);
+
   const initials = profile?.name
     .split(" ")
-    .map((part) => part[0])
+    .map((p) => p[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
 
+  /* ── Landing layout (login / diagnostic) ── */
   if (layout === "landing") {
     return (
       <main className="landing-shell">
         <header className="landing-topbar">
-          <div>
-            <Link href="/" className="brand brand-large">
-              EduFX
-            </Link>
-            <p className="brand-subtitle">Adaptive Education Platform</p>
-          </div>
+          <Link href="/" className="brand brand-large">EduFX</Link>
           {profile ? (
             <button className="ghost-button" onClick={() => void signOut()}>
               Sign out
@@ -179,59 +143,73 @@ export function PageShell({
     );
   }
 
+  /* ── App layout ── */
   return (
     <main className="app-shell">
+      {/* Sidebar */}
       <aside className="sidebar">
-        <div>
-          <Link href="/dashboard" className="brand brand-large">
-            EduFX
+        {/* Brand */}
+        <div className="brand-wrap">
+          <Link href="/dashboard" className="brand-logo" aria-label="EduFX home">
+            EF
           </Link>
-          <p className="brand-subtitle">Adaptive Education Platform</p>
+          <div>
+            <div className="brand-name">EduFX</div>
+            <div className="brand-sub">Adaptive Chemistry</div>
+          </div>
         </div>
 
-        <div className="sidebar-section-label">Menu</div>
-        <nav className="sidebar-nav" aria-label="Primary">
+        {/* Nav */}
+        <nav className="sidebar-nav" aria-label="Primary navigation">
           {navItems.map((item) => {
-            const itemClassName = `sidebar-link${
-              activeSection === item.id ? " active" : ""
-            }${item.href ? "" : " disabled"}`;
+            const cls = [
+              "sidebar-link",
+              active === item.id ? "active" : "",
+              item.href ? "" : "disabled",
+            ].filter(Boolean).join(" ");
 
             if (!item.href) {
               return (
-                <span className={itemClassName} key={item.id}>
-                  <AppIcon type={item.id} />
+                <span className={cls} key={item.id}>
+                  <NavIcon id={item.id} />
                   {item.label}
                 </span>
               );
             }
 
             return (
-              <Link className={itemClassName} href={item.href} key={item.id}>
-                <AppIcon type={item.id} />
+              <Link className={cls} href={item.href} key={item.id}>
+                <NavIcon id={item.id} />
                 {item.label}
               </Link>
             );
           })}
         </nav>
 
+        <div className="sidebar-spacer" />
+
+        {/* Profile */}
         <div className="sidebar-profile">
-          <div className="profile-avatar">{initials ?? "EF"}</div>
+          <div className="profile-avatar" aria-hidden="true">
+            {initials ?? "EF"}
+          </div>
           <div className="profile-meta">
-            <strong>{profile?.name ?? "EduFX Student"}</strong>
-            <span>Student</span>
+            <strong>{profile?.name ?? "Student"}</strong>
+            <span>A-Level Chemistry</span>
           </div>
           {profile ? (
             <button className="sidebar-signout" onClick={() => void signOut()}>
-              Sign out
+              Sign&nbsp;out
             </button>
           ) : null}
         </div>
       </aside>
 
+      {/* Main content */}
       <section className="main-panel">
         <header className="topbar">
           <div className="topbar-actions">
-            <button className="notification-button" type="button">
+            <button className="notification-button" type="button" aria-label="Notifications">
               <BellIcon />
             </button>
             {actions}
