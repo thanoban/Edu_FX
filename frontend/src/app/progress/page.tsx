@@ -41,26 +41,93 @@ export default function ProgressPage() {
   return (
     <RequireAuth>
       <PageShell
-        title="Progress Overview"
-        subtitle="Track level, recent score, and revision frequency across all subtopics."
+        title="Progress"
+        subtitle="Track mastery, revision momentum, and quiz performance across every EduFX chemistry topic."
       >
         {error ? <div className="error-banner">{error}</div> : null}
         {loading ? <div className="panel">Loading progress...</div> : null}
 
-        <section className="progress-grid">
-          {progress.map((entry) => (
-            <article className="result-card" key={entry.id}>
-              <div className="badge">{entry.subtopics.group_name}</div>
-              <h3>{entry.subtopics.title}</h3>
-              <p>Current level: {entry.current_level}</p>
-              <p>Last score: {entry.last_quiz_score}%</p>
-              <p>Total sessions: {entry.total_sessions}</p>
-              <p>
-                Last studied: {entry.last_studied_date ?? "Not yet studied"}
-              </p>
-            </article>
-          ))}
-        </section>
+        {!loading ? (
+          <>
+            <section className="metrics-grid dashboard-metrics diagnostic-metrics">
+              <article className="metric-card">
+                <div>
+                  <div className="metric-label">Tracked Topics</div>
+                  <div className="metric-value">{progress.length}</div>
+                  <p className="metric-note">Subtopics currently in your plan</p>
+                </div>
+                <div className="metric-dot blue" />
+              </article>
+              <article className="metric-card">
+                <div>
+                  <div className="metric-label">Average Score</div>
+                  <div className="metric-value">
+                    {progress.length
+                      ? Math.round(
+                          progress.reduce(
+                            (sum, entry) => sum + entry.last_quiz_score,
+                            0
+                          ) / progress.length
+                        )
+                      : 0}
+                    %
+                  </div>
+                  <p className="metric-note">Based on latest quiz attempts</p>
+                </div>
+                <div className="metric-dot green" />
+              </article>
+              <article className="metric-card">
+                <div>
+                  <div className="metric-label">Sessions Logged</div>
+                  <div className="metric-value">
+                    {progress.reduce((sum, entry) => sum + entry.total_sessions, 0)}
+                  </div>
+                  <p className="metric-note">Total learning sessions recorded</p>
+                </div>
+                <div className="metric-dot amber" />
+              </article>
+            </section>
+
+            <section className="progress-grid progress-card-grid">
+              {progress.map((entry) => (
+                <article className="result-card progress-card" key={entry.id}>
+                  <div className="section-row">
+                    <div className="badge">{entry.subtopics.group_name}</div>
+                    <span
+                      className={`status-pill ${
+                        entry.current_level === "advanced"
+                          ? "success"
+                          : entry.current_level === "intermediate"
+                            ? "warning"
+                            : ""
+                      }`}
+                    >
+                      {entry.current_level}
+                    </span>
+                  </div>
+                  <h3>{entry.subtopics.title}</h3>
+                  <div className="mastery-row progress-inline-row">
+                    <span className="metric-note">Mastery</span>
+                    <div className="mastery-bar">
+                      <span style={{ width: `${Math.max(entry.last_quiz_score, 8)}%` }} />
+                    </div>
+                    <strong>{entry.last_quiz_score}%</strong>
+                  </div>
+                  <div className="progress-meta-grid">
+                    <div>
+                      <span className="metric-note">Sessions</span>
+                      <strong>{entry.total_sessions}</strong>
+                    </div>
+                    <div>
+                      <span className="metric-note">Last studied</span>
+                      <strong>{entry.last_studied_date ?? "Not yet"}</strong>
+                    </div>
+                  </div>
+                </article>
+              ))}
+            </section>
+          </>
+        ) : null}
       </PageShell>
     </RequireAuth>
   );

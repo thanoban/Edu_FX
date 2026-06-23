@@ -429,6 +429,10 @@ main {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.diagnostic-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .metric-card {
   display: flex;
   justify-content: space-between;
@@ -1068,6 +1072,58 @@ main {
   padding: 20px;
 }
 
+.result-stat-row,
+.progress-meta-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.result-stat-row {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid #edf3ff;
+}
+
+.result-stat-row + .result-stat-row {
+  margin-top: 10px;
+}
+
+.progress-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+}
+
+.progress-card {
+  display: grid;
+  gap: 16px;
+}
+
+.progress-inline-row {
+  grid-template-columns: auto minmax(120px, 1fr) auto;
+}
+
+.progress-meta-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.progress-meta-grid strong {
+  display: block;
+  margin-top: 4px;
+}
+
+.study-panel {
+  padding: 26px;
+}
+
+.study-actions,
+.diagnostic-actions {
+  margin-top: 20px;
+}
+
+.study-metric-text {
+  text-transform: capitalize;
+}
+
 .study-content {
   max-height: 56vh;
   overflow: auto;
@@ -1109,6 +1165,7 @@ main {
 
 @media (max-width: 1220px) {
   .dashboard-metrics,
+  .diagnostic-metrics,
   .dashboard-grid,
   .before-grid,
   .quiz-layout,
@@ -1173,6 +1230,11 @@ main {
   }
 
   .dashboard-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .diagnostic-metrics,
+  .progress-meta-grid {
     grid-template-columns: 1fr;
   }
 

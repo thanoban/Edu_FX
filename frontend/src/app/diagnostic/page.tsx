@@ -87,13 +87,33 @@ export default function DiagnosticPage() {
     <RequireAuth requireDiagnostic={false}>
       <PageShell
         title="Diagnostic Assessment"
-        subtitle="40 questions, 4 per subtopic. Your score sets the starting difficulty level for each area."
+        subtitle="Answer one set of baseline questions so EduFX can assign your starting level for every chemistry subtopic."
       >
-        <section className="summary-strip">
-          <div className="summary-item">
-            Answered {answeredCount} of {questions.length || 40}
-          </div>
-          <div className="summary-item">Levels: beginner, intermediate, advanced</div>
+        <section className="metrics-grid dashboard-metrics diagnostic-metrics">
+          <article className="metric-card">
+            <div>
+              <div className="metric-label">Answered</div>
+              <div className="metric-value">{answeredCount}</div>
+              <p className="metric-note">Out of {questions.length || 40} questions</p>
+            </div>
+            <div className="metric-dot blue" />
+          </article>
+          <article className="metric-card">
+            <div>
+              <div className="metric-label">Outcome</div>
+              <div className="metric-value">3</div>
+              <p className="metric-note">Levels: beginner, intermediate, advanced</p>
+            </div>
+            <div className="metric-dot green" />
+          </article>
+          <article className="metric-card">
+            <div>
+              <div className="metric-label">Coverage</div>
+              <div className="metric-value">10</div>
+              <p className="metric-note">Subtopics are evaluated independently</p>
+            </div>
+            <div className="metric-dot purple" />
+          </article>
         </section>
 
         {error ? <div className="error-banner">{error}</div> : null}
@@ -143,7 +163,7 @@ export default function DiagnosticPage() {
           </section>
         ) : null}
 
-        <div className="button-row" style={{ marginTop: 20 }}>
+        <div className="button-row diagnostic-actions">
           <button
             className="primary-button"
             onClick={() => void handleSubmit()}

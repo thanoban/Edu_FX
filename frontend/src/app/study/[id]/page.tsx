@@ -64,9 +64,14 @@ export default function StudyPage() {
             : "Loading your personalized notes"
         }
         actions={
-          <Link href="/dashboard" className="secondary-button">
-            Back to Dashboard
-          </Link>
+          <>
+            <Link href="/progress" className="secondary-button">
+              View Progress
+            </Link>
+            <Link href="/dashboard" className="secondary-button">
+              Back to Dashboard
+            </Link>
+          </>
         }
       >
         {error ? <div className="error-banner">{error}</div> : null}
@@ -74,13 +79,40 @@ export default function StudyPage() {
 
         {content ? (
           <>
-            <section className="panel">
+            <section className="metrics-grid dashboard-metrics diagnostic-metrics">
+              <article className="metric-card">
+                <div>
+                  <div className="metric-label">Current Level</div>
+                  <div className="metric-value study-metric-text">{content.level}</div>
+                  <p className="metric-note">Content is tailored to your present mastery</p>
+                </div>
+                <div className="metric-dot blue" />
+              </article>
+              <article className="metric-card">
+                <div>
+                  <div className="metric-label">Focus Flow</div>
+                  <div className="metric-value">Read</div>
+                  <p className="metric-note">Finish the notes to unlock your adaptive quiz</p>
+                </div>
+                <div className="metric-dot green" />
+              </article>
+              <article className="metric-card">
+                <div>
+                  <div className="metric-label">Next Step</div>
+                  <div className="metric-value">Quiz</div>
+                  <p className="metric-note">Camera tracking is optional before you begin</p>
+                </div>
+                <div className="metric-dot purple" />
+              </article>
+            </section>
+
+            <section className="panel study-panel">
               <div className="study-content" onScroll={handleScroll}>
                 <ReactMarkdown>{content.body}</ReactMarkdown>
               </div>
             </section>
 
-            <div className="button-row" style={{ marginTop: 20 }}>
+            <div className="button-row study-actions">
               <Link
                 href={`/webcam-check?subtopicId=${subtopicId}`}
                 className={atBottom ? "primary-button" : "secondary-button"}

@@ -21,20 +21,67 @@ export default function DiagnosticResultsPage() {
     <RequireAuth requireDiagnostic={false}>
       <PageShell
         title="Diagnostic Results"
-        subtitle="Each subtopic now has its own starting level based on your diagnostic performance."
+        subtitle="EduFX has mapped a starting difficulty for each subtopic based on your diagnostic performance."
         actions={
           <Link href="/dashboard" className="primary-button">
             Start Learning
           </Link>
         }
       >
+        {results.length ? (
+          <section className="metrics-grid dashboard-metrics diagnostic-metrics">
+            <article className="metric-card">
+              <div>
+                <div className="metric-label">Subtopics Rated</div>
+                <div className="metric-value">{results.length}</div>
+                <p className="metric-note">Every area now has an initial level</p>
+              </div>
+              <div className="metric-dot blue" />
+            </article>
+            <article className="metric-card">
+              <div>
+                <div className="metric-label">Average Score</div>
+                <div className="metric-value">
+                  {Math.round(
+                    results.reduce((sum, result) => sum + result.score_percent, 0) /
+                      results.length
+                  )}
+                  %
+                </div>
+                <p className="metric-note">Across your full diagnostic set</p>
+              </div>
+              <div className="metric-dot green" />
+            </article>
+            <article className="metric-card">
+              <div>
+                <div className="metric-label">Strongest Level</div>
+                <div className="metric-value">
+                  {results.some((result) => result.assigned_level === "advanced")
+                    ? "Adv"
+                    : "Int"}
+                </div>
+                <p className="metric-note">Highest assigned starting tier</p>
+              </div>
+              <div className="metric-dot purple" />
+            </article>
+          </section>
+        ) : null}
+
         <section className="progress-grid">
           {results.map((result) => (
             <article className="result-card" key={result.subtopic_id}>
               <div className="badge">Subtopic {result.subtopic_id}</div>
               <h3>{result.subtopic_title}</h3>
-              <p>Score: {result.score_percent}%</p>
-              <p>Assigned level: {result.assigned_level}</p>
+              <div className="result-stat-row">
+                <span className="metric-note">Score</span>
+                <strong>{result.score_percent}%</strong>
+              </div>
+              <div className="result-stat-row">
+                <span className="metric-note">Assigned level</span>
+                <span className={`status-pill ${result.assigned_level === "advanced" ? "success" : result.assigned_level === "intermediate" ? "warning" : ""}`}>
+                  {result.assigned_level}
+                </span>
+              </div>
             </article>
           ))}
         </section>
