@@ -92,7 +92,7 @@ def get_quiz(student_id: int, subtopic_id: int):
         subtopic_title = subtopic.data[0]["title"]
         group_name = subtopic.data[0]["group_name"]
 
-        generated = generate_quiz(level, subtopic_title, group_name, content_body, past_wrong)
+        generated = generate_quiz(level, subtopic_title, group_name, content_body, past_wrong, subtopic_id=subtopic_id)
 
         questions = []
         for q in generated:

@@ -5,7 +5,7 @@ import { RequireAuth } from "@/components/require-auth";
 import { useAuth } from "@/components/auth-provider";
 
 export default function SettingsPage() {
-  const { profile } = useAuth();
+  const { profile, signOut } = useAuth();
 
   return (
     <RequireAuth>
@@ -30,6 +30,11 @@ export default function SettingsPage() {
                 {profile?.diagnostic_completed ? "Completed" : "Not completed"}
               </strong>
             </div>
+            <div className="button-row">
+              <button className="secondary-button" onClick={() => void signOut()}>
+                Sign Out
+              </button>
+            </div>
           </article>
 
           <article className="panel settings-card">
@@ -52,6 +57,15 @@ export default function SettingsPage() {
               </div>
               <span className="status-pill success">Connected</span>
             </div>
+            <div className="settings-toggle-row">
+              <div>
+                <strong>Adaptive scheduling</strong>
+                <p className="metric-note">
+                  EduFX prioritizes overdue or weaker subtopics in your daily plan.
+                </p>
+              </div>
+              <span className="status-pill success">Active</span>
+            </div>
           </article>
 
           <article className="panel settings-card">
@@ -64,6 +78,10 @@ export default function SettingsPage() {
               <span className="summary-item">Local processing</span>
               <span className="summary-item">Google OAuth</span>
               <span className="summary-item">Supabase backend</span>
+            </div>
+            <div className="settings-field">
+              <span className="metric-note">Stored data</span>
+              <strong>Behaviour summaries only</strong>
             </div>
           </article>
         </section>

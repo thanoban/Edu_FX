@@ -3,6 +3,8 @@ from dotenv import load_dotenv
 import os
 import json
 
+from rag.retriever import retrieve
+
 load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -58,9 +60,15 @@ def _normalise_question(question: dict):
     }
 
 
-def generate_quiz(level: str, subtopic_title: str, group_name: str, content_body: str, past_wrong: list) -> list:
+def generate_quiz(level: str, subtopic_title: str, group_name: str, content_body: str, past_wrong: list, subtopic_id: int | None = None) -> list:
     if not content_body.strip():
         raise ValueError("Cannot generate a personalized quiz without content notes")
+
+    retrieved_context = ""
+    if subtopic_id is not None:
+        chunks = retrieve(f"{subtopic_title} {level} A-Level chemistry", subtopic_id)
+        if chunks:
+            retrieved_context = "Retrieved context from notes:\n" + "\n---\n".join(chunks) + "\n\n"
 
     wrong_questions_text = ""
     if past_wrong:
@@ -80,7 +88,7 @@ STUDENT LEVEL: {level}
 SUBTOPIC: {subtopic_title}
 GROUP: {group_name}
 
-CONTENT (generate questions ONLY from this):
+{retrieved_context}CONTENT (generate questions ONLY from this):
 {content_body}
 
 {wrong_questions_text}

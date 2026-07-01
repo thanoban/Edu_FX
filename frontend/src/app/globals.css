@@ -929,6 +929,18 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   overflow: hidden;
 }
 
+.camera-live-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.camera-live-video.hidden {
+  display: none;
+}
+
 .preview-chip {
   position: absolute;
   top: 12px;
@@ -940,6 +952,16 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   font-size: 0.78rem;
   font-weight: 600;
   border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+.camera-preview-status {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .camera-avatar {
@@ -1001,6 +1023,13 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   gap: 6px;
   margin-top: 12px;
   flex-wrap: wrap;
+}
+
+.quiz-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .progress-step {
@@ -1314,6 +1343,11 @@ button:disabled { cursor: not-allowed; opacity: 0.55; }
   overflow: auto;
   padding-right: 8px;
   scroll-behavior: smooth;
+}
+
+.is-disabled {
+  opacity: 0.55;
+  pointer-events: auto;
 }
 .study-content h1,
 .study-content h2,

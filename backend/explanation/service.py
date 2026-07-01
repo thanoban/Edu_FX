@@ -3,6 +3,8 @@ from groq import Groq
 from dotenv import load_dotenv
 import os
 
+from rag.retriever import retrieve
+
 load_dotenv()
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -59,11 +61,16 @@ def generate_explanations(session_id: int, student_id: int):
             })
             continue
 
+        chunks = retrieve(question["question_text"], subtopic_id)
+        retrieved_context = ""
+        if chunks:
+            retrieved_context = "Relevant notes:\n" + "\n---\n".join(chunks) + "\n\n"
+
         prompt = f"""
 You are an A-Level Chemistry teacher explaining a wrong answer to a student.
 
 STUDENT LEVEL: {level}
-QUESTION: {question['question_text']}
+{retrieved_context}QUESTION: {question['question_text']}
 OPTION A: {question['option_a']}
 OPTION B: {question['option_b']}
 OPTION C: {question['option_c']}

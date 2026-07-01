@@ -18,6 +18,7 @@ export default function StudyPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [atBottom, setAtBottom] = useState(false);
+  const [readProgress, setReadProgress] = useState(0);
 
   const subtopicId = useMemo(() => Number(params.id), [params.id]);
 
@@ -47,6 +48,12 @@ export default function StudyPage() {
 
   function handleScroll(event: UIEvent<HTMLDivElement>) {
     const element = event.currentTarget;
+    const scrollableHeight = Math.max(element.scrollHeight - element.clientHeight, 1);
+    const progress = Math.min(
+      100,
+      Math.round((element.scrollTop / scrollableHeight) * 100)
+    );
+    setReadProgress(progress);
     const nearBottom =
       element.scrollTop + element.clientHeight >= element.scrollHeight - 20;
     if (nearBottom) {
@@ -107,6 +114,20 @@ export default function StudyPage() {
             </section>
 
             <section className="panel study-panel">
+              <div className="section-row" style={{ marginBottom: 14 }}>
+                <div>
+                  <strong>Reading Progress</strong>
+                  <p className="metric-note">
+                    {atBottom
+                      ? "You have finished this guided note set."
+                      : "Read through the full note set to unlock the quiz launch button."}
+                  </p>
+                </div>
+                <span className="pill-tag">{atBottom ? "Ready" : `${readProgress}%`}</span>
+              </div>
+              <div className="mastery-bar" style={{ marginBottom: 18 }}>
+                <span style={{ width: `${Math.max(readProgress, atBottom ? 100 : 4)}%` }} />
+              </div>
               <div className="study-content" onScroll={handleScroll}>
                 <ReactMarkdown>{content.body}</ReactMarkdown>
               </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { fetchProgress } from "@/lib/api";
@@ -123,9 +124,27 @@ export default function ProgressPage() {
                       <strong>{entry.last_studied_date ?? "Not yet"}</strong>
                     </div>
                   </div>
+                  <div className="button-row">
+                    <Link href={`/study/${entry.subtopic_id}`} className="secondary-button">
+                      Review Notes
+                    </Link>
+                    <Link
+                      href={`/webcam-check?subtopicId=${entry.subtopic_id}`}
+                      className="primary-button"
+                    >
+                      Start Quiz
+                    </Link>
+                  </div>
                 </article>
               ))}
             </section>
+
+            {!progress.length ? (
+              <article className="panel empty-copy">
+                Your progress overview will appear here after you complete the
+                diagnostic and begin studying.
+              </article>
+            ) : null}
           </>
         ) : null}
       </PageShell>

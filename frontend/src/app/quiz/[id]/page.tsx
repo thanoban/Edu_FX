@@ -33,6 +33,7 @@ function QuizPageContent() {
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(0);
+  const [timeExpired, setTimeExpired] = useState(false);
   const [trackerState, setTrackerState] = useState<TrackerRealtimeState | null>(
     null
   );
@@ -90,6 +91,16 @@ function QuizPageContent() {
 
     return () => window.clearInterval(timer);
   }, [submitting, timeRemaining]);
+
+  useEffect(() => {
+    if (!quiz || submitting || loading || timeRemaining !== 0 || timeExpired) {
+      return;
+    }
+
+    setTimeExpired(true);
+    setError("Time is up. EduFX is submitting your current answers now.");
+    void handleSubmit(true);
+  }, [loading, quiz, submitting, timeExpired, timeRemaining]);
 
   useEffect(() => {
     if (!webcamEnabled || !quiz || !profile || !videoRef.current) {
@@ -156,13 +167,13 @@ function QuizPageContent() {
     };
   }, [profile, quiz, webcamEnabled]);
 
-  async function handleSubmit() {
+  async function handleSubmit(forceSubmit = false) {
     if (!profile || !quiz) {
       return;
     }
     const studentId = profile.student_id;
 
-    if (Object.keys(answers).length !== quiz.questions.length) {
+    if (!forceSubmit && Object.keys(answers).length !== quiz.questions.length) {
       setError("Please answer all quiz questions before submitting.");
       return;
     }
@@ -189,7 +200,7 @@ function QuizPageContent() {
         webcamEnabled,
         quiz.questions.map((question) => ({
           question_id: question.id,
-          student_answer: answers[question.id]
+          student_answer: answers[question.id] ?? ""
         }))
       );
 
@@ -208,6 +219,7 @@ function QuizPageContent() {
   const minutes = String(Math.floor(timeRemaining / 60)).padStart(2, "0");
   const seconds = String(timeRemaining % 60).padStart(2, "0");
   const focusScore = trackerState?.focusScore ?? 100;
+  const answeredCount = Object.keys(answers).length;
   const monitorItems = [
     ["Face Detected", trackerState?.faceDetected ?? webcamEnabled, "clear"],
     ["Looking Away", trackerState?.lookingAway ?? false, "warning"],
@@ -271,6 +283,12 @@ function QuizPageContent() {
                       />
                     );
                   })}
+                </div>
+                <div className="quiz-progress-meta">
+                  <span className="metric-note">{answeredCount} answered</span>
+                  <span className="metric-note">
+                    {quiz.total_questions - answeredCount} remaining
+                  </span>
                 </div>
               </article>
 
